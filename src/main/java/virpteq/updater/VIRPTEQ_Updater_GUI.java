@@ -4,16 +4,22 @@ import java.awt.EventQueue;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.attribute.FileAttribute;
 
 import javax.swing.JButton;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextPane;
 import javax.swing.border.TitledBorder;
+import javax.swing.filechooser.FileFilter;
 
-public class VIRPTEQ_Updater_GUI {
+class VIRPTEQ_Updater_GUI {
 
 	private JFrame frame;
 	JTextPane txtpnInstructions = new JTextPane();
@@ -29,7 +35,7 @@ public class VIRPTEQ_Updater_GUI {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					testForSaveLocation();
+					VIRPTEQ_Updater.testForSaveLocation();
 					VIRPTEQ_Updater_GUI window = new VIRPTEQ_Updater_GUI();
 					window.frame.setVisible(true);
 				} catch (Exception e) {
@@ -101,8 +107,18 @@ public class VIRPTEQ_Updater_GUI {
 		else txtpnLog.setText(txtpnLog.getText() + toAppend);
 		System.out.println(toAppend);
 	}
-	
-	private static void testForSaveLocation() {
-		
+
+	public static String requestSaveLoc() {
+		JFileChooser fileChooser =  new JFileChooser();
+		fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+		fileChooser.setDialogTitle("Select a home directory for VIRPTEQ");
+		fileChooser.showSaveDialog(VIRPTEQ_Updater_GUI.txtpnLog);
+		while(! new File(fileChooser.getSelectedFile().getAbsolutePath()).exists()) {
+			System.out.println(new File(fileChooser.getSelectedFile().getAbsolutePath()));
+			fileChooser.setSelectedFile(null);
+			requestSaveLoc();
+		}
+		System.out.println(fileChooser.getSelectedFile().getAbsolutePath());
+		return fileChooser.getSelectedFile().getAbsolutePath();
 	}
 }
