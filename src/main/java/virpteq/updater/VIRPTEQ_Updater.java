@@ -135,19 +135,20 @@ class VIRPTEQ_Updater {
 		try {
 			try {
 				BufferedReader reader = new BufferedReader(new FileReader("save_location.txt"));
+				System.out.println("Trying to read save_location.txt");
 				reader.readLine();
 				reader.close();
 			} catch (FileNotFoundException fileException) {
 				VIRPTEQ_Updater_GUI
 						.appendLog("No save_location.txt found! Will create one and request location input!");
 			}
-			
+
 			String saveLocIn = VIRPTEQ_Updater_GUI.requestSaveLoc();
 			VIRPTEQ_Updater_GUI.appendLog("Found save location: " + saveLocIn);
-			
+
 			Writer writer = new BufferedWriter(
-					new OutputStreamWriter(new FileOutputStream("save_location.txt"), "utf-8"));
-			writer.write("something");
+					new OutputStreamWriter(new FileOutputStream("../save_location.txt"), "utf-8"));
+			writer.write(saveLocIn);
 			writer.close();
 		} catch (NullPointerException n) {
 			n.printStackTrace();
