@@ -7,6 +7,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
@@ -18,6 +19,7 @@ import java.util.Map;
 class VIRPTEQ_Updater {
 
 	static String saveLocation = null;
+	final static String pathProjectToSave = "../virpteq-updater/src/main/resources/save_loc/save_location.txt";
 
 	public static String getSaveLocation() {
 		return saveLocation;
@@ -25,7 +27,7 @@ class VIRPTEQ_Updater {
 
 	public static void main(String[] args) {
 		VIRPTEQ_Updater_GUI.appendLog("Initiating update...");
-		testForSaveLocation();
+		VIRPTEQ_Updater_GUI.bounceGetSaveLocCall();
 		initUpdate();
 	}
 
@@ -130,13 +132,15 @@ class VIRPTEQ_Updater {
 		return "1.2.1";
 	}
 
-	protected static void testForSaveLocation() {
-
+	protected void testForSaveLocation() {
 		try {
 			try {
 				// tries to read save_location.txt
+				// creates new InputStream of the wanted resource
+				InputStream is = getClass().getResourceAsStream("/save_loc/save_location.txt");
+
 				// creates new BufferedReader
-				BufferedReader reader = new BufferedReader(new FileReader("../virpteq-updater/save_location.txt"));
+				BufferedReader reader = new BufferedReader(new InputStreamReader(is));
 				System.out.println("Trying to read save_location.txt");
 
 				// reads the first line of text
@@ -144,8 +148,6 @@ class VIRPTEQ_Updater {
 				saveLocation = reader.readLine();
 
 				// if the save location is null:
-				System.out.println("Is saveLocation null?");
-				System.out.println(saveLocation);
 				if (saveLocation == null || saveLocation.equals(null)) {
 					// request save location with requestSaveLoc()
 					saveLocation = VIRPTEQ_Updater_GUI.requestSaveLoc();
@@ -184,7 +186,7 @@ class VIRPTEQ_Updater {
 	private static void writeSaveLoc() {
 		try {
 			Writer writer = new BufferedWriter(
-					new OutputStreamWriter(new FileOutputStream("../virpteq-updater/save_location.txt"), "utf-8"));
+					new OutputStreamWriter(new FileOutputStream(pathProjectToSave), "utf-8"));
 			writer.write(saveLocation);
 			writer.close();
 		} catch (Exception e) {

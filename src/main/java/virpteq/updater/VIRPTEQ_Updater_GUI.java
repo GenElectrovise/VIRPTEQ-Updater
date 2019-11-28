@@ -23,6 +23,7 @@ class VIRPTEQ_Updater_GUI {
 	JPanel bgpanel = new JPanel();
 	static JTextArea txtpnLog = new JTextArea();
 	boolean updating;
+	static VIRPTEQ_Updater virpteq_updater = new VIRPTEQ_Updater();
 
 	/**
 	 * Launch the application.
@@ -31,7 +32,7 @@ class VIRPTEQ_Updater_GUI {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					VIRPTEQ_Updater.testForSaveLocation();
+					virpteq_updater.testForSaveLocation();
 					VIRPTEQ_Updater_GUI window = new VIRPTEQ_Updater_GUI();
 					window.frame.setVisible(true);
 				} catch (Exception e) {
@@ -117,5 +118,9 @@ class VIRPTEQ_Updater_GUI {
 		}
 		System.out.println(fileChooser.getSelectedFile().getAbsolutePath());
 		return fileChooser.getSelectedFile().getAbsolutePath();
+	}
+
+	public static void bounceGetSaveLocCall() {
+		virpteq_updater.testForSaveLocation();
 	}
 }
