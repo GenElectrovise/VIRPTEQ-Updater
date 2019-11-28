@@ -5,9 +5,6 @@ import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.attribute.FileAttribute;
 
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
@@ -17,7 +14,6 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextPane;
 import javax.swing.border.TitledBorder;
-import javax.swing.filechooser.FileFilter;
 
 class VIRPTEQ_Updater_GUI {
 
@@ -57,6 +53,7 @@ class VIRPTEQ_Updater_GUI {
 	 */
 	private void initialize() {
 		frame = new JFrame();
+		frame.setTitle("VIRPTEQ-Updater");
 		frame.setBounds(100, 100, 660, 300);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.getContentPane().setLayout(null);

@@ -3,36 +3,35 @@ package virpteq.updater;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
-import java.io.Reader;
 import java.io.Writer;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.nio.file.Files;
 import java.util.List;
 import java.util.Map;
 
 class VIRPTEQ_Updater {
 
-	static String saveLoc;
+	static String saveLocation = null;
+
+	public static String getSaveLocation() {
+		return saveLocation;
+	}
 
 	public static void main(String[] args) {
 		VIRPTEQ_Updater_GUI.appendLog("Initiating update...");
 		testForSaveLocation();
-		// initUpdate();
+		initUpdate();
 	}
 
 	public static void initUpdate() {
 		try {
-			// fetchLatestVersionTxt();
+			fetchLatestVersionTxt();
 			fetchFromGithub();
 		} catch (Throwable e) {
 			e.printStackTrace();
@@ -70,7 +69,7 @@ class VIRPTEQ_Updater {
 		byte[] buffer = new byte[4096];
 		VIRPTEQ_Updater_GUI.appendLog("Byte buffer set");
 		int n = -1;
-		File fileOut = new File("src/main/resources/from_git/" + fileName);
+		File fileOut = new File(saveLocation + "/" + fileName);
 		VIRPTEQ_Updater_GUI.appendLog("Got file");
 		VIRPTEQ_Updater_GUI.appendLog("Writing file to: " + fileOut.getAbsolutePath());
 		OutputStream output = new FileOutputStream(fileOut);
@@ -107,7 +106,7 @@ class VIRPTEQ_Updater {
 			byte[] buffer = new byte[4096];
 			VIRPTEQ_Updater_GUI.appendLog("Byte buffer set");
 			int n = -1;
-			File fileOut = new File("../scr/main/resources/from_git/" + fileName);
+			File fileOut = new File(saveLocation + "/" + fileName);
 			VIRPTEQ_Updater_GUI.appendLog("Got file");
 			VIRPTEQ_Updater_GUI.appendLog("Writing file to: " + fileOut.getAbsolutePath());
 			OutputStream output = new FileOutputStream(fileOut);
@@ -132,29 +131,63 @@ class VIRPTEQ_Updater {
 	}
 
 	protected static void testForSaveLocation() {
+
 		try {
 			try {
-				BufferedReader reader = new BufferedReader(new FileReader("save_location.txt"));
+				// tries to read save_location.txt
+				// creates new BufferedReader
+				BufferedReader reader = new BufferedReader(new FileReader("../virpteq-updater/save_location.txt"));
 				System.out.println("Trying to read save_location.txt");
-				reader.readLine();
+
+				// reads the first line of text
+				VIRPTEQ_Updater_GUI.appendLog("Reading save_location.txt");
+				saveLocation = reader.readLine();
+
+				// if the save location is null:
+				System.out.println("Is saveLocation null?");
+				System.out.println(saveLocation);
+				if (saveLocation == null || saveLocation.equals(null)) {
+					// request save location with requestSaveLoc()
+					saveLocation = VIRPTEQ_Updater_GUI.requestSaveLoc();
+
+					// write the saveLocation to the save_location.txt file using writeSaveLoc()
+					writeSaveLoc();
+				} else {
+					VIRPTEQ_Updater_GUI.appendLog("save_location.txt is populated");
+				}
+
+				// prints the first line of text
+				System.out.println(saveLocation);
+
+				// closes the reader
 				reader.close();
 			} catch (FileNotFoundException fileException) {
+				fileException.printStackTrace();
+				// if there is an exception where the file is not found (does not exist), catch
+				// and append the log
 				VIRPTEQ_Updater_GUI
 						.appendLog("No save_location.txt found! Will create one and request location input!");
+
 			}
 
-			String saveLocIn = VIRPTEQ_Updater_GUI.requestSaveLoc();
-			VIRPTEQ_Updater_GUI.appendLog("Found save location: " + saveLocIn);
+			// append the log with found location
+			VIRPTEQ_Updater_GUI.appendLog("Found save location: " + saveLocation);
 
-			Writer writer = new BufferedWriter(
-					new OutputStreamWriter(new FileOutputStream("../save_location.txt"), "utf-8"));
-			writer.write(saveLocIn);
-			writer.close();
 		} catch (NullPointerException n) {
 			n.printStackTrace();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 
+	}
+
+	private static void writeSaveLoc() {
+		try {
+			Writer writer = new BufferedWriter(
+					new OutputStreamWriter(new FileOutputStream("../virpteq-updater/save_location.txt"), "utf-8"));
+			writer.write(saveLocation);
+			writer.close();
+		} catch (Exception e) {
+		}
 	}
 }
