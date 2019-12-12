@@ -21,11 +21,11 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 
-class VIRPTEQ_Updater {
+class Updater {
 	
-	public static VIRPTEQ_Updater updater = new VIRPTEQ_Updater();
+	public static Updater updater = new Updater();
 	static String saveLocation = updater.readSaveLoc();
-	private static VIRPTEQ_Webtools webtools = new VIRPTEQ_Webtools(saveLocation);
+	private static Webtools webtools = new Webtools(saveLocation);
 	final static String pathProjectToSave = "../virpteq-updater/src/main/resources/save_loc/save_location.txt";
 	File save_loc_file = assign();
 
@@ -101,7 +101,7 @@ class VIRPTEQ_Updater {
 		}
 	}
 
-	private String readSaveLoc() {
+	protected String readSaveLoc() {
 
 		String fileContents;
 		try {
@@ -117,21 +117,21 @@ class VIRPTEQ_Updater {
 				System.out.println("Trying to read save_location.txt");
 
 				// reads the first line of text
-				VIRPTEQ_Updater_GUI.appendLog("Reading save_location.txt");
+				Updater_GUI.appendLog("Reading save_location.txt");
 				fileContents = reader.readLine();
 
 				// if the save location is null:
 				if (fileContents == null || fileContents.equals(null)) { // request save location with requestSaveLoc()
-					fileContents = VIRPTEQ_Updater_GUI.requestSaveLoc();
+					fileContents = Updater_GUI.requestSaveLoc();
 
 					// write the saveLocation to the save_location.txt file using writeSaveLoc()
 					writeSaveLoc();
 				} else {
-					VIRPTEQ_Updater_GUI.appendLog("save_location.txt is populated");
+					Updater_GUI.appendLog("save_location.txt is populated");
 				}
 
 				// appends the first line of text
-				VIRPTEQ_Updater_GUI.appendLog("Found save location: " + fileContents);
+				Updater_GUI.appendLog("Found save location: " + fileContents);
 
 				// closes the reader
 				reader.close();
@@ -141,9 +141,9 @@ class VIRPTEQ_Updater {
 				// if there is an exception where the file is not found (does not exist), catch
 				// and append the log
 
-				VIRPTEQ_Updater_GUI
+				Updater_GUI
 						.appendLog("No save_location.txt found! Will create one and request location input!");
-				return VIRPTEQ_Updater_GUI.requestSaveLoc();
+				return Updater_GUI.requestSaveLoc();
 
 			}
 
