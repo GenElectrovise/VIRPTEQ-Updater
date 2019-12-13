@@ -22,14 +22,12 @@ import javax.swing.border.TitledBorder;
  *
  */
 class Updater_GUI {
-
 	private JFrame frame;
 	JTextPane txtpnInstructions = new JTextPane();
 	JButton btnUpdate = new JButton("Update");
 	JPanel bgpanel = new JPanel();
 	static JTextArea txtpnLog = new JTextArea();
-	boolean updating;
-	static Updater virpteq_updater = new Updater();
+	JButton btnLaunchCalculator = new JButton("Launch Calculator");
 
 	/**
 	 * Launch the application.
@@ -38,7 +36,7 @@ class Updater_GUI {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					virpteq_updater.testForSaveLocation();
+					Registry.filetools.doStuffWithSaves();
 					Updater_GUI window = new Updater_GUI();
 					window.frame.setVisible(true);
 				} catch (Exception e) {
@@ -76,10 +74,10 @@ class Updater_GUI {
 				btnUpdate.setEnabled(false);
 				appendLog("Starting update", false);
 				appendLog("Searching for updates...");
-				Updater.initUpdate();
+				Registry.updater.initUpdate();
 			}
 		});
-		btnUpdate.setBounds(525, 161, 89, 23);
+		btnUpdate.setBounds(477, 161, 137, 23);
 		btnUpdate.setEnabled(true);
 		bgpanel.add(btnUpdate);
 
@@ -87,7 +85,7 @@ class Updater_GUI {
 		txtpnInstructions.setFont(new Font("Tahoma", Font.BOLD, 9));
 		txtpnInstructions.setText(
 				"This is the VIRPTEQ Calculator Updater!\r\nTo test for and apply updates, click the update button below.\r\nIt will download the latest version \r\nof VIRPTEQ Calculator from our Git repository on: \"github.com/GenElectrovise/VIRPTEQ-Core\"");
-		txtpnInstructions.setBounds(10, 161, 604, 67);
+		txtpnInstructions.setBounds(10, 161, 457, 67);
 		bgpanel.add(txtpnInstructions);
 
 		JScrollPane scrollPane = new JScrollPane();
@@ -102,6 +100,16 @@ class Updater_GUI {
 		txtpnLog.setWrapStyleWord(true);
 		txtpnLog.setColumns(20);
 
+		btnLaunchCalculator.setBounds(477, 205, 137, 23);
+		bgpanel.add(btnLaunchCalculator);
+		btnLaunchCalculator.addActionListener(new ActionListener() {
+
+			public void actionPerformed(ActionEvent e) {
+				launchCalculator(true);
+
+			}
+		});
+
 	}
 
 	/**
@@ -110,7 +118,7 @@ class Updater_GUI {
 	 * 
 	 * @param toAppend Text to append
 	 */
-	protected static void appendLog(String toAppend) {
+	protected void appendLog(String toAppend) {
 		appendLog(toAppend, true);
 	}
 
@@ -120,7 +128,7 @@ class Updater_GUI {
 	 * @param toAppend Text to append
 	 * @param newLine  Whether the text should be logged on a new line
 	 */
-	protected static void appendLog(String toAppend, boolean newLine) {
+	protected void appendLog(String toAppend, boolean newLine) {
 		if (newLine)
 			txtpnLog.setText(txtpnLog.getText() + "\n" + toAppend);
 		else
@@ -129,10 +137,12 @@ class Updater_GUI {
 	}
 
 	/**
-	 * Requests a save location from the user. Has to be in this class to properly encapsulate the JComponents in the GUI properly
+	 * Requests a save location from the user. Has to be in this class to properly
+	 * encapsulate the JComponents in the GUI properly
+	 * 
 	 * @return A file path from the user
 	 */
-	public static String requestSaveLoc() {
+	public String requestSaveLoc() {
 		JFileChooser fileChooser = new JFileChooser();
 		fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 		fileChooser.setDialogTitle("Select a home directory for VIRPTEQ");
@@ -146,7 +156,7 @@ class Updater_GUI {
 		return fileChooser.getSelectedFile().getAbsolutePath();
 	}
 
-	public static void bounceGetSaveLocCall() {
-		virpteq_updater.testForSaveLocation();
+	private void launchCalculator(boolean closeThis) {
+
 	}
 }

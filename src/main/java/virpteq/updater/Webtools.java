@@ -8,7 +8,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.nio.file.Files;
 import java.util.List;
 import java.util.Map;
 
@@ -20,15 +19,12 @@ import java.util.Map;
  *
  */
 public class Webtools {
-	private static Webtools webtools = new Webtools(
-			new String(System.getProperty("user.dir") + "/virpteq_configs"));
-	private Updater updater = new Updater();
 	private String saveLocation;
-	private String saveLocFile = updater.readSaveLoc();
 	private String version;
 
 	public static void main(String[] args) {
-		webtools.fetch(EnumFetchType.LATEST_JAR);
+		Registry.webtools.fetch(EnumFetchType.VERSION);
+		Registry.webtools.fetch(EnumFetchType.LATEST_JAR);
 	}
 
 	/**
@@ -80,7 +76,7 @@ public class Webtools {
 		String baseLink = "https://github.com/GenElectrovise/VIRPTEQ-Core/releases/download/";
 		String version = this.version;
 		String fileName = "VIRPTEQ_Calculator_" + version + ".jar";
-		return new String(baseLink + version + fileName);
+		return new String(baseLink + version + "/" + fileName);
 	}
 
 	/**
@@ -103,18 +99,18 @@ public class Webtools {
 	 */
 	private void doFetching(EnumFetchType fetchType, String[] logMessages, String link) {
 		try {
-			Updater_GUI.appendLog(logMessages[0]);
-			Updater_GUI.appendLog(logMessages[1]);
+			Registry.gui.appendLog(logMessages[0]);
+			Registry.gui.appendLog(logMessages[1]);
 
 			// Opens http
 			URL url = new URL(link);
 			HttpURLConnection http = (HttpURLConnection) url.openConnection();
-			Updater_GUI.appendLog("Connection established");
+			Registry.gui.appendLog("Connection established");
 
 			// Be redirected
 			Map<String, List<String>> header = http.getHeaderFields();
 			while (isRedirected(header)) {
-				Updater_GUI.appendLog("Being redirected by GitHub");
+				Registry.gui.appendLog("Being redirected by GitHub");
 				link = header.get("Location").get(0);
 				url = new URL(link);
 				http = (HttpURLConnection) url.openConnection();
@@ -125,12 +121,18 @@ public class Webtools {
 			File fileOut;
 			switch (fetchType) {
 			case LATEST_JAR:
-				fileOut = new File(saveLocation + "/" + "VIRPTEQ_Calculator_" + ".jar"); // TODO name it correctly
-				writeFile(fileOut, http);
+				System.out.println("Got file");
+				fileOut = new File(saveLocation + "/" + "VIRPTEQ_Calculator_" + version + ".jar"); // TODO name it
+																											// correctly
+				Registry.filetools.writeFile(fileOut, http);
 				break;
 			case VERSION:
 				fileOut = new File(saveLocation + "/latestversion.txt");
-				writeFile(fileOut, http);
+				// fileOut = new File(System.getProperty("user.dir" +
+				// "/virpteq_configs/latestversion.txt"));
+				Registry.filetools.writeFile(fileOut, http);
+				BufferedReader br = new BufferedReader(new FileReader(fileOut));
+				version = br.readLine();
 				break;
 			}
 
@@ -140,110 +142,83 @@ public class Webtools {
 
 	}
 
-	/**
-	 * Writes a file to the given location
-	 * 
-	 * @param writeTo The file to write to -- Full file path
-	 * @param http    The <b>HttpURLConnection</b> providing the InputStream from
-	 *                which to write
-	 */
-	private void writeFile(File writeTo, HttpURLConnection http) {
-		try {
-			// Get an InputStream from the http
-			InputStream input = http.getInputStream();
-			byte[] buffer = new byte[4096];
-			int n = -1;
-
-			// Open OutputStream
-			OutputStream output = new FileOutputStream(writeTo);
-
-			// Write the file
-			while ((n = input.read(buffer)) != -1) {
-				output.write(buffer, 0, n);
-			}
-
-			Updater_GUI.appendLog("Written. Closing writer."); // https://github.com/GenElectrovise/VIRPTEQ-Calc
-			output.close();
-		} catch (Exception e) {
-
-		}
-	}
-
+	@Deprecated
 	public void fetchFromGithub() throws Throwable {
-		Updater_GUI.appendLog(">>>>> BEGIN FETCHING .JAR <<<<<");
+		Registry.gui.appendLog(">>>>> BEGIN FETCHING .JAR <<<<<");
 		String version = fetchLatestVersionTxt();
 		String fileName = "VIRPTEQ_Calculator_" + version + ".jar";
-		Updater_GUI.appendLog("Will search for file: " + fileName);
+		Registry.gui.appendLog("Will search for file: " + fileName);
 		String link = "https://github.com/GenElectrovise/VIRPTEQ-Core/releases/download/" + version + "/" + fileName; // https://github.com/GenElectrovise/VIRPTEQ-Calc/releases/download/1.2/VIRPTEQ_Calculator_1.2.jar
-		Updater_GUI.appendLog("Will search for file: " + fileName + " :On site: " + link);
+		Registry.gui.appendLog("Will search for file: " + fileName + " :On site: " + link);
 		URL url = new URL(link);
 		HttpURLConnection http = (HttpURLConnection) url.openConnection();
-		Updater_GUI.appendLog("Connection established");
+		Registry.gui.appendLog("Connection established");
 		Map<String, List<String>> header = http.getHeaderFields();
 		while (isRedirected(header)) {
-			Updater_GUI.appendLog("Being redirected by GitHub");
+			Registry.gui.appendLog("Being redirected by GitHub");
 			link = header.get("Location").get(0);
 			url = new URL(link);
 			http = (HttpURLConnection) url.openConnection();
 			header = http.getHeaderFields();
 		}
-		Updater_GUI.appendLog("Opening InputStream!");
+		Registry.gui.appendLog("Opening InputStream!");
 		InputStream input = http.getInputStream();
 		byte[] buffer = new byte[4096];
-		Updater_GUI.appendLog("Byte buffer set");
+		Registry.gui.appendLog("Byte buffer set");
 		int n = -1;
 		File fileOut = new File(saveLocation + "/" + fileName);
-		Updater_GUI.appendLog("Got file");
-		Updater_GUI.appendLog("Writing file to: " + fileOut.getAbsolutePath());
+		Registry.gui.appendLog("Got file");
+		Registry.gui.appendLog("Writing file to: " + fileOut.getAbsolutePath());
 		OutputStream output = new FileOutputStream(fileOut);
-		Updater_GUI.appendLog("Opening OutputStream. Writing!");
+		Registry.gui.appendLog("Opening OutputStream. Writing!");
 		while ((n = input.read(buffer)) != -1) {
 			output.write(buffer, 0, n);
 		}
-		Updater_GUI.appendLog("Written. Closing writer."); // https://github.com/GenElectrovise/VIRPTEQ-Calc
+		Registry.gui.appendLog("Written. Closing writer."); // https://github.com/GenElectrovise/VIRPTEQ-Calc
 		output.close();
 	}
 
+	@Deprecated
 	public String fetchLatestVersionTxt() {
 		try {
-			Updater_GUI.appendLog(">>>>> BEGIN FETCHING VERSION <<<<<");
+			Registry.gui.appendLog(">>>>> BEGIN FETCHING VERSION <<<<<");
 
 			String fileName = "latestversion.txt";
 
-			Updater_GUI.appendLog("Will search for file: " + fileName);
+			Registry.gui.appendLog("Will search for file: " + fileName);
 			String link = "https://raw.githubusercontent.com/GenElectrovise/VIRPTEQ-Core/master/" + fileName; // https://github.com/GenElectrovise/VIRPTEQ-Calc/releases/download/1.2/VIRPTEQ_Calculator_1.2.jar
-			Updater_GUI.appendLog("Will search for file: " + fileName + " :On site: " + link);
+			Registry.gui.appendLog("Will search for file: " + fileName + " :On site: " + link);
 			URL url = new URL(link);
 			HttpURLConnection http = (HttpURLConnection) url.openConnection();
-			Updater_GUI.appendLog("Connection established");
+			Registry.gui.appendLog("Connection established");
 			Map<String, List<String>> header = http.getHeaderFields();
 			while (isRedirected(header)) {
-				Updater_GUI.appendLog("Being redirected by GitHub");
+				Registry.gui.appendLog("Being redirected by GitHub");
 				link = header.get("Location").get(0);
 				url = new URL(link);
 				http = (HttpURLConnection) url.openConnection();
 				header = http.getHeaderFields();
 			}
-			Updater_GUI.appendLog("Opening InputStream!");
+			Registry.gui.appendLog("Opening InputStream!");
 			InputStream input = http.getInputStream();
 			byte[] buffer = new byte[4096];
-			Updater_GUI.appendLog("Byte buffer set");
+			Registry.gui.appendLog("Byte buffer set");
 			int n = -1;
 			File fileOut = new File(saveLocation + "/" + fileName);
-			Updater_GUI.appendLog("Got file");
-			Updater_GUI.appendLog("Writing file to: " + fileOut.getAbsolutePath());
+			Registry.gui.appendLog("Got file");
+			Registry.gui.appendLog("Writing file to: " + fileOut.getAbsolutePath());
 			OutputStream output = new FileOutputStream(fileOut);
-			Updater_GUI.appendLog("Opening OutputStream. Writing!");
+			Registry.gui.appendLog("Opening OutputStream. Writing!");
 			while ((n = input.read(buffer)) != -1) {
 				output.write(buffer, 0, n);
 			}
-			Updater_GUI.appendLog("Written. Closing writer."); // https://github.com/GenElectrovise/VIRPTEQ-Calc
-																		// //https://github.com/GenElectrovise/VIRPTEQ-Core/releases/download/1.2.1/VIRPTEQ_Calculator_1.2.1.jar
+			Registry.gui.appendLog("Written. Closing writer."); // https://github.com/GenElectrovise/VIRPTEQ-Calc
+																// //https://github.com/GenElectrovise/VIRPTEQ-Core/releases/download/1.2.1/VIRPTEQ_Calculator_1.2.1.jar
 			output.close();
 
 			BufferedReader br = new BufferedReader(new FileReader(fileOut.getAbsolutePath()));
 			String versionOut = br.readLine();
-			Updater_GUI.appendLog("Found version: " + versionOut);
+			Registry.gui.appendLog("Found version: " + versionOut);
 			br.close();
 			return versionOut;
 		} catch (Exception e) {
