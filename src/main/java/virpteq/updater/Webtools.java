@@ -21,6 +21,7 @@ import java.util.Map;
 public class Webtools {
 	private String saveLocation;
 	private String version;
+	public String versionPublic;
 
 	public static void main(String[] args) {
 		Registry.webtools.fetch(EnumFetchType.VERSION);
@@ -62,6 +63,7 @@ public class Webtools {
 		case VERSION:
 			String[] VERSION_messages = { "Will commence fetching version", "This is a version test messsage" };
 			doFetching(EnumFetchType.VERSION, VERSION_messages, getVersionLink());
+			versionPublic = this.version;
 			break;
 		}
 	}
@@ -123,7 +125,7 @@ public class Webtools {
 			case LATEST_JAR:
 				System.out.println("Got file");
 				fileOut = new File(saveLocation + "/" + "VIRPTEQ_Calculator_" + version + ".jar"); // TODO name it
-																											// correctly
+																									// correctly
 				Registry.filetools.writeFile(fileOut, http);
 				break;
 			case VERSION:

@@ -157,6 +157,6 @@ class Updater_GUI {
 	}
 
 	private void launchCalculator(boolean closeThis) {
-
+		Registry.updater.launchCalculator(closeThis);
 	}
 }
